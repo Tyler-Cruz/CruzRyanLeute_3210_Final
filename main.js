@@ -98,6 +98,10 @@ for (let i = 0; i < 5; i++) {
   building.castShadow = true;
   scene.add(building);
 }
+let carMesh = null;
+const movement = { forward: false, backward: false, left: false, right: false }; // Track movement state
+const speed = 0.2; // Movement speed
+const rotationSpeed = 0.05; // Rotation speed
 
 // GLTF Loader
 const loader = new GLTFLoader();
@@ -106,8 +110,9 @@ loader.load(
   'scene.gltf',
   (gltf) => {
     console.log('Model successfully loaded:', gltf.scene);
-    gltf.scene.scale.set(10, 10, 10);
-    scene.add(gltf.scene);
+    carMesh = gltf.scene;
+    carMesh.scale.set(10, 10, 10);
+    scene.add(carMesh);
   },
   (xhr) => {
     console.log(`Loading progress: ${(xhr.loaded / xhr.total) * 100}%`);
@@ -116,6 +121,60 @@ loader.load(
     console.error('Error loading model:', error);
   }
 );
+
+// event Listeners for keyboard input
+// WASD controls for moving car around
+window.addEventListener('keydown', (event) => {
+  switch (event.key.toLowerCase()) {
+    case 'w':
+      movement.forward = true;
+      break;
+    case 's':
+      movement.backward = true;
+      break;
+    case 'a':
+      movement.left = true;
+      break;
+    case 'd':
+      movement.right = true;
+      break;
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  switch (event.key.toLowerCase()) {
+    case 'w':
+      movement.forward = false;
+      break;
+    case 's':
+      movement.backward = false;
+      break;
+    case 'a':
+      movement.left = false;
+      break;
+    case 'd':
+      movement.right = false;
+      break;
+  }
+});
+
+// car movement Update Function
+function updateCarMovement() {
+  if (!carMesh) return;
+
+  if (movement.forward) {
+    carMesh.translateZ(-speed); // move forward
+  }
+  if (movement.backward) {
+    carMesh.translateZ(speed); // move backward
+  }
+  if (movement.left) {
+    carMesh.rotation.y += rotationSpeed; // rotate left
+  }
+  if (movement.right) {
+    carMesh.rotation.y -= rotationSpeed; // rotate right
+  }
+}
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -130,6 +189,7 @@ renderer.toneMappingExposure = 2.0; // Increase exposure to brighten the scene
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  updateCarMovement();
   renderer.render(scene, camera);
 }
 
