@@ -4,78 +4,63 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x000000);
 renderer.setPixelRatio(window.devicePixelRatio);
-
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x222222); // Background color
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(4, 5, 11);
+camera.position.set(0, 5, 15); // Camera position
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.enablePan = false;
-controls.minDistance = 5;
-controls.maxDistance = 20;
-controls.minPolarAngle = 0.5;
-controls.maxPolarAngle = 1.5;
-controls.autoRotate = false;
-controls.target = new THREE.Vector3(0, 1, 0);
+controls.target.set(0, 1, 0);
 controls.update();
 
+// Ground
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(20, 20),
+  new THREE.MeshStandardMaterial({ color: 0x555555 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
 
-//creates temporary ground for car to be on
-const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
-groundGeometry.rotateX(-Math.PI / 2);
-const groundMaterial = new THREE.MeshStandardMaterial({
-  color: 0x555555,
-  side: THREE.DoubleSide
-});
-const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-groundMesh.castShadow = false;
-groundMesh.receiveShadow = true;
-scene.add(groundMesh);
-
-//creates spotlight to be put on the car
-const spotLight = new THREE.SpotLight(0xffffff, 3000, 100, 0.22, 1);
-spotLight.position.set(0, 25, 0);
+// Light
+const spotLight = new THREE.SpotLight(0xffffff, 1);
+spotLight.position.set(0, 10, 10);
 spotLight.castShadow = true;
-spotLight.shadow.bias = -0.0001;
 scene.add(spotLight);
 
+// Test Box (Temporary)
+const box = new THREE.Mesh(
+  new THREE.BoxGeometry(1, 1, 1),
+  new THREE.MeshStandardMaterial({ color: 0x00ff00 })
+);
+scene.add(box);
 
-//loads the model from the folder
-const loader = new GLTFLoader().setPath('CruzRyanLeute_3210_Final/bmw_m6_gran_coupe/');
-loader.load('scene.gltf', (gltf) => {
-    gltf.scene.scale.set(10,10,10);
-  console.log('loading model');
-  const mesh = gltf.scene;
-
-
-
-  mesh.traverse((child) => {
-    if (child.isMesh) {
-      child.castShadow = true;
-      child.receiveShadow = true;
-    }
-  });
-
-  mesh.position.set(0, 1.05, -1);
-  scene.add(mesh);
-
-  document.getElementById('progress-container').style.display = 'none';
-}, (xhr) => {
-  console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
-}, (error) => {
-  console.error(error);
-});
+// GLTF Loader
+const loader = new GLTFLoader();
+loader.setPath('./bmw_m6_gran_coupe/'); // Ensure this path is correct
+loader.load(
+  'scene.gltf',
+  (gltf) => {
+    console.log('Model successfully loaded:', gltf.scene);
+    gltf.scene.scale.set(10, 10, 10);
+    scene.add(gltf.scene);
+  },
+  (xhr) => {
+    console.log(`Loading progress: ${(xhr.loaded / xhr.total) * 100}%`);
+  },
+  (error) => {
+    console.error('Error loading model:', error);
+  }
+);
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
