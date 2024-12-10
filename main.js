@@ -12,37 +12,92 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x222222); // Background color
+scene.background = new THREE.Color(0xaaaaaa); // Lighter background color for brightness
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(0, 5, 15); // Camera position
+camera.position.set(0, 15, 30); // Higher position to view the city
+camera.lookAt(0, 0, 0);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.target.set(0, 1, 0);
+controls.target.set(0, 0, 0);
 controls.update();
 
-// Ground
+// Ground Plane
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(20, 20),
-  new THREE.MeshStandardMaterial({ color: 0x555555 })
+  new THREE.PlaneGeometry(100, 100), // Large ground for the city
+  new THREE.MeshStandardMaterial({ color: 0x444444 }) // Darker ground to contrast with roads
 );
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-// Light
-const spotLight = new THREE.SpotLight(0xffffff, 1);
-spotLight.position.set(0, 10, 10);
+// Load Road Texture
+const textureLoader = new THREE.TextureLoader();
+const roadTexture = textureLoader.load('./road_texture.jpg'); // Update with the correct path to your texture file
+roadTexture.wrapS = THREE.RepeatWrapping;
+roadTexture.wrapT = THREE.RepeatWrapping;
+roadTexture.repeat.set(1, 20); // Adjust to repeat texture along the road length
+
+// Main Road
+const mainRoad = new THREE.Mesh(
+  new THREE.PlaneGeometry(10, 100), // Wide and long main road
+  new THREE.MeshStandardMaterial({ map: roadTexture })
+);
+mainRoad.rotation.x = -Math.PI / 2;
+mainRoad.position.set(0, 0.01, 0);
+mainRoad.receiveShadow = true;
+scene.add(mainRoad);
+
+// Side Roads
+const sideRoad1 = new THREE.Mesh(
+  new THREE.PlaneGeometry(4, 40), // Smaller road
+  new THREE.MeshStandardMaterial({ map: roadTexture })
+);
+sideRoad1.rotation.x = -Math.PI / 2;
+sideRoad1.position.set(-7, 0.01, -30); // Positioning relative to the main road
+sideRoad1.receiveShadow = true;
+scene.add(sideRoad1);
+
+const sideRoad2 = new THREE.Mesh(
+  new THREE.PlaneGeometry(4, 40), // Smaller road
+  new THREE.MeshStandardMaterial({ map: roadTexture })
+);
+sideRoad2.rotation.x = -Math.PI / 2;
+sideRoad2.position.set(7, 0.01, 30); // Positioning relative to the main road
+sideRoad2.receiveShadow = true;
+scene.add(sideRoad2);
+
+// Street Lighting
+const streetLight1 = new THREE.PointLight(0xffffff, 1, 30); // Bright streetlights
+streetLight1.position.set(-7, 10, -20);
+scene.add(streetLight1);
+
+const streetLight2 = new THREE.PointLight(0xffffff, 1, 30);
+streetLight2.position.set(7, 10, 20);
+scene.add(streetLight2);
+
+// Add Ambient Light for General Brightness
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // General brightness
+scene.add(ambientLight);
+
+// Spot Light for Directional Brightness
+const spotLight = new THREE.SpotLight(0xffffff, 2); // Stronger light for overall illumination
+spotLight.position.set(0, 50, 50);
 spotLight.castShadow = true;
 scene.add(spotLight);
 
-// Test Box (Temporary)
-const box = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshStandardMaterial({ color: 0x00ff00 })
-);
-scene.add(box);
+// Placeholder for Buildings
+const buildingMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
+for (let i = 0; i < 5; i++) {
+  const building = new THREE.Mesh(
+    new THREE.BoxGeometry(5, 15, 5),
+    buildingMaterial
+  );
+  building.position.set(-20 + i * 10, 7.5, -40); // Row of buildings
+  building.castShadow = true;
+  scene.add(building);
+}
 
 // GLTF Loader
 const loader = new GLTFLoader();
@@ -67,6 +122,10 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// Tone Mapping to Enhance Brightness
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = 2.0; // Increase exposure to brighten the scene
 
 function animate() {
   requestAnimationFrame(animate);
