@@ -1,3 +1,4 @@
+// Import statements and existing setup remain unchanged
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -17,7 +18,6 @@ scene.background = new THREE.Color(0xaaaaaa);
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
 camera.position.set(0, 20, 50); // Adjusted camera position for a more zoomed-out view
 camera.lookAt(0, 0, 0);
-
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -69,23 +69,6 @@ sideRoad2.position.set(7, 0.01, 30);
 sideRoad2.receiveShadow = true;
 scene.add(sideRoad2);
 
-// Street Lighting
-const streetLight1 = new THREE.PointLight(0xffffff, 1, 30);
-streetLight1.position.set(-7, 10, -20);
-scene.add(streetLight1);
-
-const streetLight2 = new THREE.PointLight(0xffffff, 1, 30);
-streetLight2.position.set(7, 10, 20);
-scene.add(streetLight2);
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambientLight);
-
-const spotLight = new THREE.SpotLight(0xffffff, 2);
-spotLight.position.set(0, 50, 50);
-spotLight.castShadow = true;
-scene.add(spotLight);
-
 // Placeholder for Buildings
 const buildingMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
 for (let i = 0; i < 5; i++) {
@@ -97,6 +80,86 @@ for (let i = 0; i < 5; i++) {
   building.castShadow = true;
   scene.add(building);
 }
+
+// Function to remove all lights
+function removeLights() {
+  scene.traverse((object) => {
+    if (object.isLight) {
+      scene.remove(object);
+    }
+  });
+}
+
+// Function to set up day lighting
+function setupDayLighting() {
+  removeLights();
+
+  // Bright ambient light
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+  scene.add(ambientLight);
+
+  // Sunlight (directional light)
+  const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+  sunLight.position.set(100, 100, 100);
+  sunLight.castShadow = true;
+  scene.add(sunLight);
+
+  // Set a bright daytime background
+  scene.background = new THREE.Color(0x87ceeb); // Sky blue
+}
+
+// Function to set up night lighting
+function setupNightLighting() {
+  removeLights();
+
+  // Dim ambient light
+  const ambientLight = new THREE.AmbientLight(0x333333, 0.5);
+  scene.add(ambientLight);
+
+  // Moonlight (directional light)
+  const moonLight = new THREE.DirectionalLight(0x9999ff, 0.3);
+  moonLight.position.set(-100, 100, -100);
+  scene.add(moonLight);
+
+  // Add streetlights
+  const streetLight1 = new THREE.PointLight(0xffaa33, 1, 30);
+  streetLight1.position.set(-7, 10, -20);
+  scene.add(streetLight1);
+
+  const streetLight2 = new THREE.PointLight(0xffaa33, 1, 30);
+  streetLight2.position.set(7, 10, 20);
+  scene.add(streetLight2);
+
+  // Set a dark nighttime background
+  scene.background = new THREE.Color(0x000022); // Dark blue
+}
+
+// Add a button to toggle between day and night modes
+const button = document.createElement('button');
+button.innerText = 'Switch to Night Mode';
+button.style.position = 'absolute';
+button.style.top = '10px';
+button.style.left = '10px';
+button.style.zIndex = '1000';
+document.body.appendChild(button);
+
+// Variable to keep track of current mode
+let isDay = true;
+
+// Add event listener to the button
+button.addEventListener('click', () => {
+  if (isDay) {
+    setupNightLighting();
+    button.innerText = 'Switch to Day Mode';
+  } else {
+    setupDayLighting();
+    button.innerText = 'Switch to Night Mode';
+  }
+  isDay = !isDay;
+});
+
+// Initial lighting setup
+setupDayLighting();
 
 let carMesh = null;
 const movement = { forward: false, backward: false, left: false, right: false };
@@ -201,6 +264,5 @@ function animate() {
 
   renderer.render(scene, camera);
 }
-
 
 animate();
