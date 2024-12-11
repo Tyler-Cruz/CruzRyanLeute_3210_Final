@@ -1,4 +1,3 @@
-// Import statements and existing setup remain unchanged
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -116,7 +115,7 @@ function setupNightLighting() {
   const ambientLight = new THREE.AmbientLight(0x333333, 0.5);
   scene.add(ambientLight);
 
-  // Moonlight (directional light)
+  // Moonlight 
   const moonLight = new THREE.DirectionalLight(0x9999ff, 0.3);
   moonLight.position.set(-100, 100, -100);
   scene.add(moonLight);
@@ -143,10 +142,10 @@ button.style.left = '10px';
 button.style.zIndex = '1000';
 document.body.appendChild(button);
 
-// Variable to keep track of current mode
+//current mode
 let isDay = true;
 
-// Add event listener to the button
+
 button.addEventListener('click', () => {
   if (isDay) {
     setupNightLighting();
@@ -253,13 +252,13 @@ function animate() {
     const carPosition = new THREE.Vector3();
     carMesh.getWorldPosition(carPosition);
 
-    // Adjust offset for a higher angle
-    const offset = new THREE.Vector3(0, 30, -55); // Increase Y for height and adjust Z for angle
-    offset.applyQuaternion(carMesh.quaternion); // Maintain relative to car's orientation
+    
+    const offset = new THREE.Vector3(0, 30, -55); //camera angle and such
+    offset.applyQuaternion(carMesh.quaternion);
     const cameraPosition = carPosition.clone().add(offset);
 
     camera.position.copy(cameraPosition);
-    camera.lookAt(carPosition); // Ensure camera looks at the car
+    camera.lookAt(carPosition); 
   }
 
   renderer.render(scene, camera);
