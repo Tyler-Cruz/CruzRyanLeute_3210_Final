@@ -215,6 +215,26 @@ loader.load(
   }
 );
 
+//adding city
+let cityMesh = null;
+const cLoader = new GLTFLoader();
+cLoader.setPath('./full_gameready_city_buildings/');
+cLoader.load(
+    'scene.gltf',
+    (gltf) => {
+        console.log('Model successfully loaded:', gltf.scene);
+        cityMesh = gltf.scene;
+        cityMesh.scale.set(20,20,20);
+        scene.add(cityMesh);
+    },
+    (xhr) => {
+        console.log(`Loading progress: ${(xhr.loaded / xhr.total) * 100}`);
+    },
+    (error) => {
+        console.error('Error loading model:', error);
+    }
+);
+
 window.addEventListener('keydown', (event) => {
   switch (event.key.toLowerCase()) {
     case 's':
