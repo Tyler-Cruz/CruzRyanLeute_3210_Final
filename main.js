@@ -242,6 +242,70 @@ function updateRain() {
 // Initialize rain particles
 createRain();
 
+// Array to store people
+const people = [];
+const personCount = 10;
+
+// Function to create a person
+function createPerson() {
+  const personMaterial = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+  
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), personMaterial);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 0.5), personMaterial);
+
+  const skirt = new THREE.Mesh(new THREE.ConeGeometry(1.25, 1.5, 7), personMaterial); // ConeGeometry for skirt
+  skirt.position.set(0, 0.5, 0); // Position the skirt below the body
+
+  const person = new THREE.Group();
+  head.position.set(0, 3, 0);
+  body.position.set(0,1.5,0);
+  person.add(head);
+  person.add(body);
+  person.add(skirt);
+  person.scale.set(4, 4, 4);
+  const mapSize = 100;
+  
+  person.position.set(
+    Math.random() * mapSize - mapSize / 2,
+    0.01, 
+    Math.random() * mapSize - mapSize / 2);
+
+  scene.add(person);
+  return person;
+}
+
+// Add
+for (let i = 0; i < personCount; i++) {
+  const person = createPerson();
+  people.push({
+    object: person,
+    direction: new THREE.Vector3(
+      Math.random() * 2 - 1,
+      0,
+      Math.random() * 2 - 1
+    ).normalize(), // initial direction
+    speed: Math.random() * 0.05 + 0.02, // walking speed
+  });
+}
+
+// Update people movement
+function updatePeople() {
+  people.forEach((personData) => {
+    const { object, direction, speed } = personData;
+
+    object.position.addScaledVector(direction, speed);
+
+    // Change direction randomly
+    if (Math.random() < 0.01) {
+      direction.set(
+        Math.random() * 200 - 100,
+        0,
+        Math.random() * 200 - 100
+      ).normalize();
+    }
+  });
+}
+
 let speed = 0.2;
 
 const speedControl = document.createElement('input');
@@ -398,6 +462,7 @@ function animate() {
   updateCarMovement();
   updateLightingTransition();
   updateRain();
+  updatePeople();
 
   if (carMesh) {
     const carPosition = new THREE.Vector3();
