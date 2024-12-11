@@ -80,59 +80,6 @@ for (let i = 0; i < 5; i++) {
   scene.add(building);
 }
 
-// Function to remove all lights
-function removeLights() {
-  scene.traverse((object) => {
-    if (object.isLight) {
-      scene.remove(object);
-    }
-  });
-}
-
-// Function to set up day lighting
-function setupDayLighting() {
-  removeLights();
-
-  // Bright ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-  scene.add(ambientLight);
-
-  // Sunlight (directional light)
-  const sunLight = new THREE.DirectionalLight(0xffffff, 1);
-  sunLight.position.set(100, 100, 100);
-  sunLight.castShadow = true;
-  scene.add(sunLight);
-
-  // Set a bright daytime background
-  scene.background = new THREE.Color(0x87ceeb); // Sky blue
-}
-
-// Function to set up night lighting
-function setupNightLighting() {
-  removeLights();
-
-  // Dim ambient light
-  const ambientLight = new THREE.AmbientLight(0x333333, 0.5);
-  scene.add(ambientLight);
-
-  // Moonlight 
-  const moonLight = new THREE.DirectionalLight(0x9999ff, 0.3);
-  moonLight.position.set(-100, 100, -100);
-  scene.add(moonLight);
-
-  // Add streetlights
-  const streetLight1 = new THREE.PointLight(0xffaa33, 1, 30);
-  streetLight1.position.set(-7, 10, -20);
-  scene.add(streetLight1);
-
-  const streetLight2 = new THREE.PointLight(0xffaa33, 1, 30);
-  streetLight2.position.set(7, 10, 20);
-  scene.add(streetLight2);
-
-  // Set a dark nighttime background
-  scene.background = new THREE.Color(0x000022); // Dark blue
-}
-
 // Add a button to toggle between day and night modes
 const button = document.createElement('button');
 button.innerText = 'Switch to Night Mode';
@@ -142,23 +89,95 @@ button.style.left = '10px';
 button.style.zIndex = '1000';
 document.body.appendChild(button);
 
-//current mode
-let isDay = true;
+
+let isDay = true; // current mode
+let transitioning = false; 
+let transitionStartTime = 0; 
+const transitionDuration = 3; 
+
+const clock = new THREE.Clock(); 
+
+// Helper function to interpolate between two colors
+function interpolateColor(color1, color2, t) {
+  return color1.clone().lerp(color2, t);
+}
+
+// Helper function to interpolate light intensity
+function interpolateIntensity(start, end, t) {
+  return start + (end - start) * t;
+}
+
+let ambientLight, directionalLight, streetLights = [];
+
+// Function to initialize lights
+function initLights() {
+  ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+  scene.add(ambientLight);
+
+  directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight.position.set(100, 100, 100);
+  directionalLight.castShadow = true;
+  scene.add(directionalLight);
+
+  const streetLight1 = new THREE.PointLight(0xffaa33, 0, 30);
+  streetLight1.position.set(-7, 10, -20);
+  scene.add(streetLight1);
+  streetLights.push(streetLight1);
+
+  const streetLight2 = new THREE.PointLight(0xffaa33, 0, 30); 
+  streetLight2.position.set(7, 10, 20);
+  scene.add(streetLight2);
+  streetLights.push(streetLight2);
+}
+
+initLights();
 
 
 button.addEventListener('click', () => {
-  if (isDay) {
-    setupNightLighting();
-    button.innerText = 'Switch to Day Mode';
-  } else {
-    setupDayLighting();
-    button.innerText = 'Switch to Night Mode';
-  }
+  if (transitioning) return; // Prevent overlapping transitions
+  transitioning = true;
+  transitionStartTime = clock.getElapsedTime();
   isDay = !isDay;
+  button.innerText = isDay ? 'Switch to Night Mode' : 'Switch to Day Mode';
 });
 
-// Initial lighting setup
-setupDayLighting();
+function updateLightingTransition() {
+  if (!transitioning) return;
+
+  const elapsedTime = clock.getElapsedTime() - transitionStartTime;
+  const t = Math.min(elapsedTime / transitionDuration, 1); 
+
+  if (isDay) {
+    // Transition to day
+    ambientLight.color = interpolateColor(new THREE.Color(0x333333), new THREE.Color(0xffffff), t);
+    ambientLight.intensity = interpolateIntensity(0.5, 0.8, t);
+
+    directionalLight.color = interpolateColor(new THREE.Color(0x9999ff), new THREE.Color(0xffffff), t);
+    directionalLight.intensity = interpolateIntensity(0.3, 1, t);
+
+    streetLights.forEach((light) => {
+      light.intensity = interpolateIntensity(1, 0, t); 
+    });
+
+    scene.background = interpolateColor(new THREE.Color(0x000022), new THREE.Color(0x87ceeb), t);
+  } else {
+    // Transition to night
+    ambientLight.color = interpolateColor(new THREE.Color(0xffffff), new THREE.Color(0x333333), t);
+    ambientLight.intensity = interpolateIntensity(0.8, 0.5, t);
+
+    directionalLight.color = interpolateColor(new THREE.Color(0xffffff), new THREE.Color(0x9999ff), t);
+    directionalLight.intensity = interpolateIntensity(1, 0.3, t);
+
+    streetLights.forEach((light) => {
+      light.intensity = interpolateIntensity(0, 1, t); 
+    });
+
+    scene.background = interpolateColor(new THREE.Color(0x87ceeb), new THREE.Color(0x000022), t);
+  }
+
+  if (t === 1) transitioning = false; 
+}
+
 
 let speed = 0.2;
 
@@ -218,7 +237,7 @@ loader.load(
 //adding city
 let cityMesh = null;
 
-// Collision detection variables
+// Collision detection variables???
 const buildingBoundingBoxes = [];
 let carBoundingBox = new THREE.Box3();
 
@@ -314,6 +333,7 @@ function animate() {
   requestAnimationFrame(animate);
 
   updateCarMovement();
+  updateLightingTransition();
 
   if (carMesh) {
     const carPosition = new THREE.Vector3();
