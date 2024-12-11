@@ -160,9 +160,41 @@ button.addEventListener('click', () => {
 // Initial lighting setup
 setupDayLighting();
 
+let speed = 0.2;
+
+const speedControl = document.createElement('input');
+speedControl.type = 'range';
+speedControl.min = '0.1';
+speedControl.max = '2.0';
+speedControl.step = '0.1';
+speedControl.value = '0.2';
+speedControl.style.position = 'absolute';
+speedControl.style.top = '80px'; 
+speedControl.style.left = '10px';
+speedControl.style.zIndex = '1000';
+
+const speedLabel = document.createElement('div');
+speedLabel.style.position = 'absolute';
+speedLabel.style.top = '50px'; 
+speedLabel.style.left = '10px';
+speedLabel.style.zIndex = '1000';
+speedLabel.style.color = '#fff';
+speedLabel.style.backgroundColor = '#333';
+speedLabel.style.padding = '5px';
+speedLabel.style.borderRadius = '5px';
+speedLabel.textContent = `Speed: ${speedControl.value}`;
+
+document.body.appendChild(speedControl);
+document.body.appendChild(speedLabel);
+
+// Slider speed
+speedControl.addEventListener('input', (event) => {
+  speed = parseFloat(event.target.value); 
+  speedLabel.textContent = `Speed: ${speed}`; 
+});
+
 let carMesh = null;
 const movement = { forward: false, backward: false, left: false, right: false };
-const speed = 0.2;
 const rotationSpeed = 0.05;
 
 const loader = new GLTFLoader();
