@@ -179,6 +179,69 @@ function updateLightingTransition() {
 }
 
 
+let rainParticles = null;
+let isRaining = false;
+
+// function to create rain
+function createRain() {
+  const rainCount = 1000;
+  const rainGeometry = new THREE.BufferGeometry();
+  const rainVertices = [];
+
+  for (let i = 0; i < rainCount; i++) {
+    const x = Math.random() * 200 - 100; 
+    const y = Math.random() * 100; 
+    const z = Math.random() * 200 - 100; 
+    rainVertices.push(x, y, z);
+  }
+
+  rainGeometry.setAttribute('position', new THREE.Float32BufferAttribute(rainVertices, 3));
+
+  const rainMaterial = new THREE.PointsMaterial({
+    color: 0xaaaaaa,
+    size: 0.2,
+    transparent: true,
+  });
+
+  rainParticles = new THREE.Points(rainGeometry, rainMaterial);
+  rainParticles.visible = false; 
+  scene.add(rainParticles);
+}
+
+// Rain button
+const rainButton = document.createElement('button');
+rainButton.innerText = 'Toggle Rain';
+rainButton.style.position = 'absolute';
+rainButton.style.top = '120px';
+rainButton.style.left = '10px';
+rainButton.style.zIndex = '1000';
+document.body.appendChild(rainButton);
+
+rainButton.addEventListener('click', () => {
+  isRaining = !isRaining;
+  rainParticles.visible = isRaining;
+});
+
+//rain animation
+function updateRain() {
+  if (!rainParticles || !isRaining) return;
+
+  const positions = rainParticles.geometry.attributes.position.array;
+
+  for (let i = 1; i < positions.length; i += 3) {
+    positions[i] -= 0.5; // raining
+
+    if (positions[i] < 0) {
+      positions[i] = 100; // particles to the top
+    }
+  }
+
+  rainParticles.geometry.attributes.position.needsUpdate = true;
+}
+
+// Initialize rain particles
+createRain();
+
 let speed = 0.2;
 
 const speedControl = document.createElement('input');
@@ -334,6 +397,7 @@ function animate() {
 
   updateCarMovement();
   updateLightingTransition();
+  updateRain();
 
   if (carMesh) {
     const carPosition = new THREE.Vector3();
