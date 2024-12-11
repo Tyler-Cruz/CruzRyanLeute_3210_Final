@@ -217,6 +217,11 @@ loader.load(
 
 //adding city
 let cityMesh = null;
+
+// Collision detection variables
+const buildingBoundingBoxes = [];
+let carBoundingBox = new THREE.Box3();
+
 const cLoader = new GLTFLoader();
 cLoader.setPath('./full_gameready_city_buildings/');
 cLoader.load(
@@ -225,6 +230,15 @@ cLoader.load(
         console.log('Model successfully loaded:', gltf.scene);
         cityMesh = gltf.scene;
         cityMesh.scale.set(20,20,20);
+
+        //how to scan for bounding boxes??
+        cityMesh.traverse((child) => {
+          if (child.isMesh) {
+            const boundingBox = new THREE.Box3().setFromObject(child);
+            buildingBoundingBoxes.push(boundingBox);
+          }
+        });
+
         scene.add(cityMesh);
     },
     (xhr) => {
@@ -234,6 +248,7 @@ cLoader.load(
         console.error('Error loading model:', error);
     }
 );
+
 
 window.addEventListener('keydown', (event) => {
   switch (event.key.toLowerCase()) {
