@@ -15,7 +15,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xaaaaaa);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(0, 20, 50); // Adjusted camera position for a more zoomed-out view
+camera.position.set(0, 20, 50); // adjusted camera position for a more zoomed-out view
 camera.lookAt(0, 0, 0);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -23,50 +23,6 @@ controls.enableDamping = true;
 controls.target.set(0, 0, 0);
 controls.update();
 
-// Ground Plane
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshStandardMaterial({ color: 0x444444 })
-);
-ground.rotation.x = -Math.PI / 2;
-ground.receiveShadow = true;
-scene.add(ground);
-
-// Load Road Texture
-const textureLoader = new THREE.TextureLoader();
-const roadTexture = textureLoader.load('./road_texture.jpg');
-roadTexture.wrapS = THREE.RepeatWrapping;
-roadTexture.wrapT = THREE.RepeatWrapping;
-roadTexture.repeat.set(1, 20);
-
-// Main Road
-const mainRoad = new THREE.Mesh(
-  new THREE.PlaneGeometry(10, 100),
-  new THREE.MeshStandardMaterial({ map: roadTexture })
-);
-mainRoad.rotation.x = -Math.PI / 2;
-mainRoad.position.set(0, 0.01, 0);
-mainRoad.receiveShadow = true;
-scene.add(mainRoad);
-
-// Side Roads
-const sideRoad1 = new THREE.Mesh(
-  new THREE.PlaneGeometry(4, 40),
-  new THREE.MeshStandardMaterial({ map: roadTexture })
-);
-sideRoad1.rotation.x = -Math.PI / 2;
-sideRoad1.position.set(-7, 0.01, -30);
-sideRoad1.receiveShadow = true;
-scene.add(sideRoad1);
-
-const sideRoad2 = new THREE.Mesh(
-  new THREE.PlaneGeometry(4, 40),
-  new THREE.MeshStandardMaterial({ map: roadTexture })
-);
-sideRoad2.rotation.x = -Math.PI / 2;
-sideRoad2.position.set(7, 0.01, 30);
-sideRoad2.receiveShadow = true;
-scene.add(sideRoad2);
 
 // Placeholder for Buildings
 const buildingMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
@@ -97,12 +53,12 @@ const transitionDuration = 3;
 
 const clock = new THREE.Clock(); 
 
-// Helper function to interpolate between two colors
+// interpolate between two colors
 function interpolateColor(color1, color2, t) {
   return color1.clone().lerp(color2, t);
 }
 
-// Helper function to interpolate light intensity
+// interpolate light intensity
 function interpolateIntensity(start, end, t) {
   return start + (end - start) * t;
 }
@@ -134,7 +90,7 @@ initLights();
 
 
 button.addEventListener('click', () => {
-  if (transitioning) return; // Prevent overlapping transitions
+  if (transitioning) return; // Prevent overlapping transitions night-day)
   transitioning = true;
   transitionStartTime = clock.getElapsedTime();
   isDay = !isDay;
@@ -148,7 +104,7 @@ function updateLightingTransition() {
   const t = Math.min(elapsedTime / transitionDuration, 1); 
 
   if (isDay) {
-    // Transition to day
+    //day
     ambientLight.color = interpolateColor(new THREE.Color(0x333333), new THREE.Color(0xffffff), t);
     ambientLight.intensity = interpolateIntensity(0.5, 0.8, t);
 
@@ -184,12 +140,12 @@ let isRaining = false;
 
 // function to create rain
 function createRain() {
-  const rainCount = 1000;
+  const rainCount = 100000; //how many raindrops there are
   const rainGeometry = new THREE.BufferGeometry();
   const rainVertices = [];
 
   for (let i = 0; i < rainCount; i++) {
-    const x = Math.random() * 200 - 100; 
+    const x = Math.random() * 20000 - 10000; //adjust where rain is (idk the dimensions of map thingy)
     const y = Math.random() * 100; 
     const z = Math.random() * 200 - 100; 
     rainVertices.push(x, y, z);
@@ -198,8 +154,8 @@ function createRain() {
   rainGeometry.setAttribute('position', new THREE.Float32BufferAttribute(rainVertices, 3));
 
   const rainMaterial = new THREE.PointsMaterial({
-    color: 0xaaaaaa,
-    size: 0.2,
+    color: 0x87CEEB, 
+    size: 0.2, //thickness of rain (if we wanna make snow we gotta just copy this and make it bigger, and use white color)
     transparent: true,
   });
 
@@ -208,7 +164,7 @@ function createRain() {
   scene.add(rainParticles);
 }
 
-// Rain button
+// Rain button (we can change button if we want to try somethng new)
 const rainButton = document.createElement('button');
 rainButton.innerText = 'Toggle Rain';
 rainButton.style.position = 'absolute';
@@ -239,26 +195,26 @@ function updateRain() {
   rainParticles.geometry.attributes.position.needsUpdate = true;
 }
 
-// Initialize rain particles
+//initialize rain particles
 createRain();
 
-// Array to store people
+
 const people = [];
 const personCount = 10;
 
-// Function to create a person
+// Function to create scary mermaid colorful ghost looking people
 function createPerson() {
   const personMaterial = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
   
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), personMaterial);
   const body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 0.5), personMaterial);
 
-  const skirt = new THREE.Mesh(new THREE.ConeGeometry(1.25, 1.5, 7), personMaterial); // ConeGeometry for skirt
-  skirt.position.set(0, 0.5, 0); // Position the skirt below the body
+  const skirt = new THREE.Mesh(new THREE.ConeGeometry(1.25, 1.5, 7), personMaterial); 
 
   const person = new THREE.Group();
   head.position.set(0, 3, 0);
   body.position.set(0,1.5,0);
+  skirt.position.set(0, 0.5, 0)
   person.add(head);
   person.add(body);
   person.add(skirt);
@@ -274,7 +230,6 @@ function createPerson() {
   return person;
 }
 
-// Add
 for (let i = 0; i < personCount; i++) {
   const person = createPerson();
   people.push({
@@ -306,7 +261,7 @@ function updatePeople() {
   });
 }
 
-let speed = 0.2;
+let speed = 0.2; //should we make car go faster?? like up the whole range ?
 
 const speedControl = document.createElement('input');
 speedControl.type = 'range';
