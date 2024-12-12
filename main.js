@@ -64,15 +64,25 @@ function initLights() {
   directionalLight.castShadow = true;
   scene.add(directionalLight);
 
-  const streetLight1 = new THREE.PointLight(0xffaa33, 0, 30);
-  streetLight1.position.set(-7, 10, -20);
-  scene.add(streetLight1);
-  streetLights.push(streetLight1);
+  const gridRows = 4; // number of rows in the grid
+  const gridCols = 5; // number of columns in the grid
+  const gridSpacing = 200; // distance between lights in the grid
+  const lightHeight = 10; //height
+  const lightRange = 100; // diameter
+  const lightIntensity = 1; // intensity
 
-  const streetLight2 = new THREE.PointLight(0xffaa33, 0, 30); 
-  streetLight2.position.set(7, 10, 20);
-  scene.add(streetLight2);
-  streetLights.push(streetLight2);
+  for (let i = 0; i < gridRows; i++) {
+    for (let j = 0; j < gridCols; j++) {
+      const streetLight = new THREE.PointLight(0xffaa33, lightIntensity, lightRange);
+      streetLight.position.set(
+        i * gridSpacing - (gridRows * gridSpacing) / 2,
+        lightHeight,
+        j * gridSpacing - (gridCols * gridSpacing) / 2
+      );
+      scene.add(streetLight);
+      streetLights.push(streetLight);
+    }
+  }
 }
 
 initLights();
@@ -114,7 +124,7 @@ function updateLightingTransition() {
     directionalLight.intensity = interpolateIntensity(1, 0.3, t);
 
     streetLights.forEach((light) => {
-      light.intensity = interpolateIntensity(0, 1, t); 
+      light.intensity = interpolateIntensity(0, 2000, t); 
     });
 
     scene.background = interpolateColor(new THREE.Color(0x87ceeb), new THREE.Color(0x000022), t);
