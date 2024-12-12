@@ -24,6 +24,7 @@ controls.target.set(0, 0, 0);
 controls.update();
 
 
+
 // Add a button to toggle between day and night modes
 const button = document.createElement('button');
 button.innerText = 'Switch to Night Mode';
@@ -312,7 +313,7 @@ const buildingBoundingBoxes = [];
 let carBoundingBox = new THREE.Box3();
 
 const cLoader = new GLTFLoader();
-cLoader.setPath('./full_gameready_city_s/');
+cLoader.setPath('./full_gameready_city_buildings/')
 cLoader.load(
     'scene.gltf',
     (gltf) => {
