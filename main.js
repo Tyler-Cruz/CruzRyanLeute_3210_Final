@@ -200,7 +200,7 @@ createRain();
 
 
 const people = [];
-const personCount = 10;
+const personCount = 30;
 
 // Function to create scary mermaid colorful ghost looking people
 function createPerson() {
@@ -219,7 +219,7 @@ function createPerson() {
   person.add(body);
   person.add(skirt);
   person.scale.set(4, 4, 4);
-  const mapSize = 100;
+  const mapSize = 1000; //just need to figure out how big the map is
   
   person.position.set(
     Math.random() * mapSize - mapSize / 2,
@@ -239,7 +239,7 @@ for (let i = 0; i < personCount; i++) {
       0,
       Math.random() * 2 - 1
     ).normalize(), // initial direction
-    speed: Math.random() * 0.05 + 0.02, // walking speed
+    speed: Math.random() * 0.5 + 0.05, // walking speed
   });
 }
 
@@ -253,7 +253,7 @@ function updatePeople() {
     // Change direction randomly
     if (Math.random() < 0.01) {
       direction.set(
-        Math.random() * 200 - 100,
+        Math.random() * 2000 - 100,
         0,
         Math.random() * 200 - 100
       ).normalize();
