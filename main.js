@@ -24,18 +24,6 @@ controls.target.set(0, 0, 0);
 controls.update();
 
 
-// Placeholder for Buildings
-const buildingMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
-for (let i = 0; i < 5; i++) {
-  const building = new THREE.Mesh(
-    new THREE.BoxGeometry(5, 15, 5),
-    buildingMaterial
-  );
-  building.position.set(-20 + i * 10, 7.5, -40);
-  building.castShadow = true;
-  scene.add(building);
-}
-
 // Add a button to toggle between day and night modes
 const button = document.createElement('button');
 button.innerText = 'Switch to Night Mode';
@@ -324,7 +312,7 @@ const buildingBoundingBoxes = [];
 let carBoundingBox = new THREE.Box3();
 
 const cLoader = new GLTFLoader();
-cLoader.setPath('./full_gameready_city_buildings/');
+cLoader.setPath('./full_gameready_city_s/');
 cLoader.load(
     'scene.gltf',
     (gltf) => {
