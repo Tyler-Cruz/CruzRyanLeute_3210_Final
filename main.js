@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+
+// creating renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -11,13 +13,19 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 document.body.appendChild(renderer.domElement);
 
+
+//initializing scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xaaaaaa);
 
+
+// initializing camera
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
 camera.position.set(0, 20, 50); // adjusted camera position for a more zoomed-out view
 camera.lookAt(0, 0, 0);
 
+
+// initializing controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.target.set(0, 0, 0);
@@ -87,7 +95,7 @@ function initLights() {
 
 initLights();
 
-
+// key controls for night mode toggle
 button.addEventListener('click', () => {
   if (transitioning) return; // Prevent overlapping transitions night-day)
   transitioning = true;
@@ -96,6 +104,8 @@ button.addEventListener('click', () => {
   button.innerText = isDay ? 'Switch to Night Mode' : 'Switch to Day Mode';
 });
 
+
+// lighting transition for night mode toggle 
 function updateLightingTransition() {
   if (!transitioning) return;
 
@@ -134,10 +144,12 @@ function updateLightingTransition() {
 }
 
 const hydrants = [];
-const hydrantBoundingBoxes = []; // Store bounding boxes for collision detection
-const hydrantCount = 20; // Number of hydrants to place
-const hydrantSize = 5; // Adjust size for better visibility
+const hydrantBoundingBoxes = []; // store bounding boxes for collision detection
+const hydrantCount = 20; // number of hydrants to place
+const hydrantSize = 5; // adjust size 
 
+
+// function to create fire hydrants
 function createFireHydrant(position) {
   // Load the texture
   const textureLoader = new THREE.TextureLoader();
@@ -221,6 +233,8 @@ function createExplosion(position) {
   const explosionDuration = 2; // Duration in seconds
   let elapsed = 0;
 
+
+  // animating explosion for hydrant 
   function animateExplosion() {
     elapsed += clock.getDelta();
     const positions = particles.geometry.attributes.position.array;
@@ -244,6 +258,7 @@ function createExplosion(position) {
   animateExplosion();
 }
 
+// explode and fall when person is hit by car 
 function explodeAndFall(person) {
   const explosionDuration = 2; // Duration of explosion and fall in seconds
   const parts = person.children; // Head, body, and skirt
@@ -261,6 +276,7 @@ function explodeAndFall(person) {
 
   let elapsed = 0;
 
+// animating explosion of people
   function animateExplosion2() {
     const delta = clock.getDelta();
     elapsed += delta;
@@ -281,6 +297,8 @@ function explodeAndFall(person) {
   animateExplosion2();
 }
 
+
+// function to animate people collisions
 function updatePersonCollisions() {
   if (!carMesh) return;
 
@@ -292,8 +310,8 @@ function updatePersonCollisions() {
     const personBoundingBox = new THREE.Box3().setFromObject(person);
 
     if (carBoundingBox.intersectsBox(personBoundingBox)) {
-      explodeAndFall(person); // Trigger explosion and fall animation
-      people.splice(i, 1); // Remove person from the array
+      explodeAndFall(person); // trigger explosion and fall animation
+      people.splice(i, 1); // remove person from the array
     }
   }
 }
@@ -320,7 +338,7 @@ function updateCollisions() {
   });
 }
 
-
+// initializing conditions for rain
 let rainParticles = null;
 let isRaining = false;
 
@@ -350,7 +368,7 @@ function createRain() {
   scene.add(rainParticles);
 }
 
-// Rain button (we can change button if we want to try somethng new)
+// rain button 
 const rainButton = document.createElement('button');
 rainButton.innerText = 'Toggle Rain';
 rainButton.style.position = 'absolute';
@@ -389,7 +407,7 @@ const people = [];
 const personCount = 30;
 const peopleBoundingBoxes = [];
 
-// Function to create scary mermaid colorful ghost looking people
+// function to create people and make them random colors
 function createPerson() {
   const personMaterial = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
   
@@ -417,6 +435,8 @@ function createPerson() {
   return person;
 }
 
+
+// direction and speed of people
 for (let i = 0; i < personCount; i++) {
   const person = createPerson();
   people.push({
@@ -449,6 +469,8 @@ function updatePeople() {
   });
 }
 
+
+// speed controls
 let speed = 0.2; //should we make car go faster?? like up the whole range ?
 
 const speedControl = document.createElement('input');
@@ -486,6 +508,8 @@ let carMesh = null;
 const movement = { forward: false, backward: false, left: false, right: false };
 const rotationSpeed = 0.05;
 
+
+// loading car from external file
 const loader = new GLTFLoader();
 loader.setPath('./bmw_m6_gran_coupe/');
 loader.load(
@@ -510,7 +534,7 @@ let cityMesh = null;
 
 const buildingBoundingBoxes = [];
 
-
+// loading city from external file
 const cLoader = new GLTFLoader();
 cLoader.setPath('./full_gameready_city_buildings/')
 cLoader.load(
@@ -520,7 +544,7 @@ cLoader.load(
         cityMesh = gltf.scene;
         cityMesh.scale.set(20,20,20);
 
-        //how to scan for bounding boxes??
+        //how to scan for bounding boxes
         cityMesh.traverse((child) => {
           if (child.isMesh) {
             const boundingBox = new THREE.Box3().setFromObject(child);
@@ -539,6 +563,7 @@ cLoader.load(
 );
 
 
+// key controls
 window.addEventListener('keydown', (event) => {
   switch (event.key.toLowerCase()) {
     case 's':
@@ -575,6 +600,8 @@ window.addEventListener('keyup', (event) => {
 
 let carBoundingBox = new THREE.Box3();
 
+
+// function to update movement of car
 function updateCarMovement() {
   if (!carMesh) return;
 
@@ -601,6 +628,8 @@ window.addEventListener('resize', () => {
 renderer.toneMapping = THREE.ReinhardToneMapping;
 renderer.toneMappingExposure = 2.0;
 
+
+// animate function
 function animate() {
   requestAnimationFrame(animate);
 
