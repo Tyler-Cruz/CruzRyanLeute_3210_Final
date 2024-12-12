@@ -134,6 +134,7 @@ function updateLightingTransition() {
 }
 
 const hydrants = [];
+const hydrantBoundingBoxes = []; // Store bounding boxes for collision detection
 const hydrantCount = 20; // Number of hydrants to place
 const hydrantSize = 5; // Adjust size for better visibility
 
@@ -167,6 +168,11 @@ function createFireHydrant(position) {
   hydrant.position.copy(position);
 
   scene.add(hydrant);
+
+  // Create bounding box for collision detection
+  const boundingBox = new THREE.Box3().setFromObject(hydrant);
+  hydrantBoundingBoxes.push(boundingBox);
+
   return hydrant;
 }
 
@@ -180,6 +186,83 @@ for (let i = 0; i < hydrantCount; i++) {
   );
   const hydrant = createFireHydrant(position);
   hydrants.push(hydrant);
+}
+
+// Function to create explosion particles
+function createExplosion(position) {
+  const particleCount = 100; 
+  const particlesGeometry = new THREE.BufferGeometry();
+  const positions = [];
+  const velocities = []; 
+
+  for (let i = 0; i < particleCount; i++) {
+    positions.push(position.x, position.y, position.z); 
+    velocities.push(
+      (Math.random() - 0.5) * 10, // Random X velocity
+      Math.random() * 10,         // Random Y velocity
+      (Math.random() - 0.5) * 10  // Random Z velocity
+    );
+  }
+
+  particlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  particlesGeometry.setAttribute('velocity', new THREE.Float32BufferAttribute(velocities, 3));
+
+  const particlesMaterial = new THREE.PointsMaterial({
+    color: 0xff4500, // change color to blue maybe
+    size: 0.5,
+    transparent: true,
+    opacity: 0.8,
+  });
+
+  const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particles);
+
+  //animate particles
+  const explosionDuration = 2; // Duration in seconds
+  let elapsed = 0;
+
+  function animateExplosion() {
+    elapsed += clock.getDelta();
+    const positions = particles.geometry.attributes.position.array;
+    const velocities = particles.geometry.attributes.velocity.array;
+
+    for (let i = 0; i < positions.length; i += 3) {
+      positions[i] += velocities[i / 3 * 3] * 0.1; // X position
+      positions[i + 1] += velocities[i / 3 * 3 + 1] * 0.1; // Y position
+      positions[i + 2] += velocities[i / 3 * 3 + 2] * 0.1; // Z position
+    }
+
+    particles.geometry.attributes.position.needsUpdate = true;
+
+    if (elapsed < explosionDuration) {
+      requestAnimationFrame(animateExplosion);
+    } else {
+      scene.remove(particles); // remove particles after explosion ends
+    }
+  }
+
+  animateExplosion();
+}
+
+// check for collisions
+function updateCollisions() {
+  if (!carMesh) return;
+
+  const carBoundingBox = new THREE.Box3().setFromObject(carMesh);
+
+  hydrants.forEach((hydrant, index) => {
+    const hydrantBoundingBox = hydrantBoundingBoxes[index];
+
+    if (carBoundingBox.intersectsBox(hydrantBoundingBox)) {
+      // Trigger explosion
+      createExplosion(hydrant.position);
+
+      // Remove hydrant from scene
+      scene.remove(hydrant);
+      hydrants.splice(index, 1);
+      hydrantBoundingBoxes.splice(index, 1);
+    }
+  });
 }
 
 
@@ -470,6 +553,7 @@ function animate() {
   updateLightingTransition();
   updateRain();
   updatePeople();
+  updateCollisions();
 
   if (carMesh) {
     const carPosition = new THREE.Vector3();
