@@ -1,57 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Three.js Framework Example</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js Night/Day Toggle</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /*toggle button */
+    button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+  </style>
 </head>
 <body>
-
-    <canvas id="myCanvas"></canvas>
-
-    <script type="module">
-import * as THREE from 'three';
-
-var scene = new THREE.Scene();
-
-var camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, .1, 3000 );
-camera.position.z = 100;  
-camera.lookAt( new THREE.Vector3(0.0,0.0,0.0));
-scene.add( camera );
-
-var renderer = new THREE.WebGLRenderer({canvas: myCanvas, antialias: true});
-renderer.setClearColor(0x000000);
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-/* CREATE/DRAW STUFF HERE */
-
-//this is a placeholder for when the car object is implemented right
-const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
-const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
-const cube = new THREE.Mesh( geometry, material ); 
-scene.add( cube );
-
-
-
-//handles all key presses for driving and for toggling weather conditions
-// function keyHandler(e){
-//     switch(e.keyCode){
-//         case 87: //W key
-            
-//         break;
-//         case 65: //A key
-            
-//         break;
-//         case 83: //S key
-
-//         break;
-//         case 68: //D key
-
-//         break;
-//     }
-// }
-document.addEventListener( "keydown", keyHandler, false );
-
-renderer.render( scene, camera );
-    </script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>
