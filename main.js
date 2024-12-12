@@ -249,6 +249,7 @@ createRain();
 
 const people = [];
 const personCount = 30;
+const peopleBoundingBoxes = [];
 
 // Function to create scary mermaid colorful ghost looking people
 function createPerson() {
@@ -306,6 +307,7 @@ function updatePeople() {
         Math.random() * 200 - 100
       ).normalize();
     }
+
   });
 }
 
@@ -367,9 +369,9 @@ loader.load(
 //adding city
 let cityMesh = null;
 
-// Collision detection variables???
+
 const buildingBoundingBoxes = [];
-let carBoundingBox = new THREE.Box3();
+
 
 const cLoader = new GLTFLoader();
 cLoader.setPath('./full_gameready_city_buildings/')
@@ -432,6 +434,8 @@ window.addEventListener('keyup', (event) => {
       break;
   }
 });
+
+let carBoundingBox = new THREE.Box3();
 
 function updateCarMovement() {
   if (!carMesh) return;
