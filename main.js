@@ -287,12 +287,13 @@ function explodeAndFall(person) {
       part.rotation.z += Math.random() * 0.1;
     });
 
-    if (elapsed > explosionDuration) {
-      scene.remove(person); // Remove person after animation
+    if (elapsed < explosionDuration) {
+        requestAnimationFrame(animateExplosion2); // Recursive call to animateExplosion2
     } else {
-      requestAnimationFrame(animateExplosion);
+        console.log('Removing person after explosion animation.');
+        scene.remove(person); // Remove person after animation
     }
-  }
+}
 
   animateExplosion2();
 }
