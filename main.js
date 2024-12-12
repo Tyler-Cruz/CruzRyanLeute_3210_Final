@@ -344,7 +344,7 @@ let isRaining = false;
 
 // function to create rain
 function createRain() {
-  const rainCount = 100000; //how many raindrops there are
+  const rainCount = 1000000; //how many raindrops there are
   const rainGeometry = new THREE.BufferGeometry();
   const rainVertices = [];
 
@@ -359,7 +359,7 @@ function createRain() {
 
   const rainMaterial = new THREE.PointsMaterial({
     color: 0x87CEEB, 
-    size: 0.2, //thickness of rain (if we wanna make snow we gotta just copy this and make it bigger, and use white color)
+    size: 0.3, //thickness of rain (if we wanna make snow we gotta just copy this and make it bigger, and use white color)
     transparent: true,
   });
 
@@ -389,7 +389,7 @@ function updateRain() {
   const positions = rainParticles.geometry.attributes.position.array;
 
   for (let i = 1; i < positions.length; i += 3) {
-    positions[i] -= 0.5; // raining
+    positions[i] -= 0.8; // raining
 
     if (positions[i] < 0) {
       positions[i] = 100; // particles to the top
