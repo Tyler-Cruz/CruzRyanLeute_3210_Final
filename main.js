@@ -244,6 +244,61 @@ function createExplosion(position) {
   animateExplosion();
 }
 
+function explodeAndFall(person) {
+  const explosionDuration = 2; // Duration of explosion and fall in seconds
+  const parts = person.children; // Head, body, and skirt
+  const velocities = []; // Store random velocities for each part
+
+  parts.forEach(() => {
+    velocities.push(
+      new THREE.Vector3(
+        (Math.random() - 0.5) * 5, // Random X velocity
+        Math.random() * 5 + 5, // Upward Y velocity
+        (Math.random() - 0.5) * 5 // Random Z velocity
+      )
+    );
+  });
+
+  let elapsed = 0;
+
+  function animateExplosion2() {
+    const delta = clock.getDelta();
+    elapsed += delta;
+
+    parts.forEach((part, index) => {
+      part.position.addScaledVector(velocities[index], delta); // Move parts
+      part.rotation.x += Math.random() * 0.1; // Random rotation
+      part.rotation.z += Math.random() * 0.1;
+    });
+
+    if (elapsed > explosionDuration) {
+      scene.remove(person); // Remove person after animation
+    } else {
+      requestAnimationFrame(animateExplosion);
+    }
+  }
+
+  animateExplosion2();
+}
+
+function updatePersonCollisions() {
+  if (!carMesh) return;
+
+  carBoundingBox.setFromObject(carMesh);
+
+  for (let i = people.length - 1; i >= 0; i--) {
+    const personData = people[i];
+    const person = personData.object;
+    const personBoundingBox = new THREE.Box3().setFromObject(person);
+
+    if (carBoundingBox.intersectsBox(personBoundingBox)) {
+      explodeAndFall(person); // Trigger explosion and fall animation
+      people.splice(i, 1); // Remove person from the array
+    }
+  }
+}
+
+
 // check for collisions
 function updateCollisions() {
   if (!carMesh) return;
@@ -554,6 +609,7 @@ function animate() {
   updateRain();
   updatePeople();
   updateCollisions();
+  updatePersonCollisions();
 
   if (carMesh) {
     const carPosition = new THREE.Vector3();
