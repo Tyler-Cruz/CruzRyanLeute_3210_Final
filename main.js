@@ -133,6 +133,55 @@ function updateLightingTransition() {
   if (t === 1) transitioning = false; 
 }
 
+const hydrants = [];
+const hydrantCount = 20; // Number of hydrants to place
+const hydrantSize = 5; // Adjust size for better visibility
+
+function createFireHydrant(position) {
+  // Load the texture
+  const textureLoader = new THREE.TextureLoader();
+  const hydrantTexture = textureLoader.load('./rough-red-painted-rusty-metal-surface-high-resolution-texture_422666-1344.avif');
+
+  const baseMaterial = new THREE.MeshStandardMaterial({
+    map: hydrantTexture,
+  });
+
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 1.2, 16), baseMaterial);
+  base.position.set(0, 1.2, 0);
+  const top = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), baseMaterial);
+  const connectors = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.5, 16), baseMaterial);
+  const topOfTop = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1, 16), baseMaterial);
+
+  topOfTop.position.y = 1.7;
+  top.position.set(0, 1.6, 0); // Positioning the top
+  connectors.rotation.z = Math.PI / 2; // Laying the connector sideways
+  connectors.position.y = 1.5;
+
+  const hydrant = new THREE.Group();
+  hydrant.add(base);
+  hydrant.add(top);
+  hydrant.add(connectors);
+  hydrant.add(topOfTop);
+
+  hydrant.scale.set(hydrantSize, hydrantSize, hydrantSize);
+  hydrant.position.copy(position);
+
+  scene.add(hydrant);
+  return hydrant;
+}
+
+// Place hydrants in random positions on the map
+const mapSize = 1000; // Assuming map size
+for (let i = 0; i < hydrantCount; i++) {
+  const position = new THREE.Vector3(
+    Math.random() * mapSize - mapSize / 2,
+    0, // Ground level
+    Math.random() * mapSize - mapSize / 2
+  );
+  const hydrant = createFireHydrant(position);
+  hydrants.push(hydrant);
+}
+
 
 let rainParticles = null;
 let isRaining = false;
