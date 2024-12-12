@@ -220,7 +220,7 @@ function createExplosion(position) {
   particlesGeometry.setAttribute('velocity', new THREE.Float32BufferAttribute(velocities, 3));
 
   const particlesMaterial = new THREE.PointsMaterial({
-    color: 0xff4500, // change color to blue maybe
+    color: 0x0000CD, // blue particles to simulate water
     size: 0.5,
     transparent: true,
     opacity: 0.8,
